@@ -17,12 +17,10 @@ end
 
 -- Cum class definition
 local Cum = {}
+Cum.__index = Cum
 
 local canRoll = true
-local currentPage = 1
-local totalPages = 3
-local cooldown = 5
-local guiCooldown = false
+local rollCooldown = 5
 
 function Cum.network_cum(times)
     for i = 1, times do
@@ -33,52 +31,26 @@ function Cum.network_cum(times)
 end
 
 function Cum.createCumAnimation()
-    local particle = Instance.new("Part")
-    particle.Size = Vector3.new(1, 1, 1)
-    particle.Position = Vector3.new(math.random(-50, 50), 50, math.random(-50, 50))
-    particle.Anchored = true
-    particle.BrickColor = BrickColor.new("Institutional white")
-    particle.Parent = game.Workspace
-
-    local tweenService = game:GetService("TweenService")
-    local goal = {}
-    goal.Position = particle.Position - Vector3.new(0, 50, 0)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-    local tween = tweenService:Create(particle, tweenInfo, goal)
-    tween:Play()
-
-    tween.Completed:Connect(function()
-        particle:Destroy()
-    end)
+    print("Creating cum animation...")
 end
 
 function Cum.summonEntity()
-    local entity = Instance.new("Model")
-    entity.Name = "u r mom"
+    print("Summoning entity...")
+end
 
-    local humanoid = Instance.new("Humanoid", entity)
-    local head = Instance.new("Part", entity)
-    head.Name = "Head"
-    head.Size = Vector3.new(2, 1, 1)
-    head.Position = Vector3.new(0, 5, 0)
-    head.Anchored = true
-    head.BrickColor = BrickColor.new("Bright red")
-
-    local torso = Instance.new("Part", entity)
-    torso.Name = "Torso"
-    torso.Size = Vector3.new(2, 2, 1)
-    torso.Position = Vector3.new(0, 3, 0)
-    torso.Anchored = true
-    torso.BrickColor = BrickColor.new("Bright blue")
-
-    entity.PrimaryPart = torso
-    entity:SetPrimaryPartCFrame(CFrame.new(0, 3, 0))
-
-    entity.Parent = game.Workspace
+function Cum.clearGui()
+    local player = game.Players.LocalPlayer
+    for _, child in ipairs(player:WaitForChild("PlayerGui"):GetChildren()) do
+        if child:IsA("ScreenGui") and child.Name == "CumGui" then
+            child:Destroy()
+        end
+    end
 end
 
 function Cum.showGui()
     local player = game.Players.LocalPlayer
+
+    Cum.clearGui()
 
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "CumGui"
@@ -86,8 +58,8 @@ function Cum.showGui()
     screenGui.ResetOnSpawn = false
 
     local guiFrame = Instance.new("Frame")
-    guiFrame.Size = UDim2.new(0, 200, 0, 100)
-    guiFrame.Position = UDim2.new(0.5, -100, 0.5, -50)
+    guiFrame.Size = UDim2.new(0, 300, 0, 100)
+    guiFrame.Position = UDim2.new(0.5, -150, 1, -110)
     guiFrame.BackgroundColor3 = Color3.new(0, 0, 0)
     guiFrame.BackgroundTransparency = 0.5
     guiFrame.BorderSizePixel = 0
@@ -115,49 +87,68 @@ function Cum.showGui()
     cooldownLabel.TextStrokeTransparency = 0.5
     cooldownLabel.Font = Enum.Font.SourceSans
     cooldownLabel.Parent = guiFrame
-    cooldownLabel.Text = ""
-
-    local watermark = Instance.new("TextLabel")
-    watermark.Size = UDim2.new(0, 100, 0, 20)
-    watermark.Position = UDim2.new(0, 5, 0, 5)
-    watermark.TextScaled = true
-    watermark.BackgroundColor3 = Color3.new(1, 1, 1)
-    watermark.BackgroundTransparency = 1
-    watermark.TextColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))
-    watermark.TextStrokeTransparency = 0.5
-    watermark.Font = Enum.Font.SourceSans
-    watermark.Parent = guiFrame
-    watermark.Text = "UR MOM"
+    cooldownLabel.Text = "Cooldown: " .. (canRoll and "Ready" or rollCooldown .. "s")
 
     local minimizeButton = Instance.new("TextButton")
-    minimizeButton.Size = UDim2.new(0, 20, 0, 20)
-    minimizeButton.Position = UDim2.new(0, 5, 1, -25)
-    minimizeButton.Text = "-"
+    minimizeButton.Size = UDim2.new(0, 50, 0, 20)
+    minimizeButton.Position = UDim2.new(1, -55, 0, 5)
+    minimizeButton.Text = "_"
     minimizeButton.TextScaled = true
-    minimizeButton.BackgroundColor3 = Color3.new(0.25, 0.25, 0.25)
-    minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+    minimizeButton.BackgroundColor3 = Color3.new(1, 1, 1)
+    minimizeButton.BackgroundTransparency = 0.5
     minimizeButton.Parent = guiFrame
 
     local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0, 20, 0, 20)
-    closeButton.Position = UDim2.new(1, -25, 1, -25)
+    closeButton.Size = UDim2.new(0, 50, 0, 20)
+    closeButton.Position = UDim2.new(1, -55, 0, 30)
     closeButton.Text = "X"
     closeButton.TextScaled = true
-    closeButton.BackgroundColor3 = Color3.new(0.25, 0.25, 0.25)
-    closeButton.TextColor3 = Color3.new(1, 1, 1)
+    closeButton.BackgroundColor3 = Color3.new(1, 1, 1)
+    closeButton.BackgroundTransparency = 0.5
     closeButton.Parent = guiFrame
 
-    local function roll()
-        if not canRoll or guiCooldown then
-            return
+    local minimized = false
+
+    local function onClick()
+        if canRoll then
+            canRoll = false
+            Cum.network_cum(1)  -- or however many times you want to cum
+            resultLabel.Text = "Rolling..."
+            cooldownLabel.Text = "Cooldown: " .. rollCooldown .. "s"
+            for i = rollCooldown, 1, -1 do
+                wait(1)
+                cooldownLabel.Text = "Cooldown: " .. i .. "s"
+            end
+            canRoll = true
+            resultLabel.Text = "Click to roll!"
+            cooldownLabel.Text = "Cooldown: Ready"
+        else
+            resultLabel.Text = "Please wait for cooldown!"
         end
-        canRoll = false
-        guiCooldown = true
-        resultLabel.Text = "Rolling..."
-        wait(2) -- Simulate rolling animation
-        local results = {"asian", "failure", "cpkq", player.Name}
-        local randomResult = results[math.random(1, #results)]
-        resultLabel.Text = "Result: " .. randomResult
-        Cum.createCumAnimation()
-        Cum.summonEntity()
-        local
+    end
+
+    local function onMinimize()
+        minimized = not minimized
+        if minimized then
+            guiFrame.Size = UDim2.new(0, 300, 0, 30)
+            resultLabel.Visible = false
+            cooldownLabel.Visible = false
+            minimizeButton.Text = "+"
+        else
+            guiFrame.Size = UDim2.new(0, 300, 0, 100)
+            resultLabel.Visible = true
+            cooldownLabel.Visible = true
+            minimizeButton.Text = "_"
+        end
+    end
+
+    local function onClose()
+        screenGui:Destroy()
+    end
+
+    guiFrame.MouseButton1Click:Connect(onClick)
+    minimizeButton.MouseButton1Click:Connect(onMinimize)
+    closeButton.MouseButton1Click:Connect(onClose)
+end
+
+return Cum
