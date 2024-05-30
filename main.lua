@@ -19,6 +19,10 @@ end
 local Cum = {}
 
 local canRoll = true
+local currentPage = 1
+local totalPages = 3
+local cooldown = 5
+local guiCooldown = false
 
 function Cum.network_cum(times)
     for i = 1, times do
@@ -29,16 +33,52 @@ function Cum.network_cum(times)
 end
 
 function Cum.createCumAnimation()
-    -- Your particle effects code here
+    local particle = Instance.new("Part")
+    particle.Size = Vector3.new(1, 1, 1)
+    particle.Position = Vector3.new(math.random(-50, 50), 50, math.random(-50, 50))
+    particle.Anchored = true
+    particle.BrickColor = BrickColor.new("Institutional white")
+    particle.Parent = game.Workspace
+
+    local tweenService = game:GetService("TweenService")
+    local goal = {}
+    goal.Position = particle.Position - Vector3.new(0, 50, 0)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+    local tween = tweenService:Create(particle, tweenInfo, goal)
+    tween:Play()
+
+    tween.Completed:Connect(function()
+        particle:Destroy()
+    end)
 end
 
 function Cum.summonEntity()
-    -- Your entity summoning code here
+    local entity = Instance.new("Model")
+    entity.Name = "u r mom"
+
+    local humanoid = Instance.new("Humanoid", entity)
+    local head = Instance.new("Part", entity)
+    head.Name = "Head"
+    head.Size = Vector3.new(2, 1, 1)
+    head.Position = Vector3.new(0, 5, 0)
+    head.Anchored = true
+    head.BrickColor = BrickColor.new("Bright red")
+
+    local torso = Instance.new("Part", entity)
+    torso.Name = "Torso"
+    torso.Size = Vector3.new(2, 2, 1)
+    torso.Position = Vector3.new(0, 3, 0)
+    torso.Anchored = true
+    torso.BrickColor = BrickColor.new("Bright blue")
+
+    entity.PrimaryPart = torso
+    entity:SetPrimaryPartCFrame(CFrame.new(0, 3, 0))
+
+    entity.Parent = game.Workspace
 end
 
 function Cum.showGui()
     local player = game.Players.LocalPlayer
-    local cooldown = 5
 
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "CumGui"
@@ -89,30 +129,35 @@ function Cum.showGui()
     watermark.Parent = guiFrame
     watermark.Text = "UR MOM"
 
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.Size = UDim2.new(0, 20, 0, 20)
+    minimizeButton.Position = UDim2.new(0, 5, 1, -25)
+    minimizeButton.Text = "-"
+    minimizeButton.TextScaled = true
+    minimizeButton.BackgroundColor3 = Color3.new(0.25, 0.25, 0.25)
+    minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+    minimizeButton.Parent = guiFrame
+
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 20, 0, 20)
+    closeButton.Position = UDim2.new(1, -25, 1, -25)
+    closeButton.Text = "X"
+    closeButton.TextScaled = true
+    closeButton.BackgroundColor3 = Color3.new(0.25, 0.25, 0.25)
+    closeButton.TextColor3 = Color3.new(1, 1, 1)
+    closeButton.Parent = guiFrame
+
     local function roll()
-        if not canRoll then
+        if not canRoll or guiCooldown then
             return
         end
         canRoll = false
+        guiCooldown = true
         resultLabel.Text = "Rolling..."
         wait(2) -- Simulate rolling animation
         local results = {"asian", "failure", "cpkq", player.Name}
         local randomResult = results[math.random(1, #results)]
         resultLabel.Text = "Result: " .. randomResult
         Cum.createCumAnimation()
-        wait(cooldown)
-        canRoll = true
-    end
-
-    guiFrame.MouseButton1Click:Connect(roll)
-end
-
-local function main()
-    local condom = Condom:new()
-    Cum.network_cum(2)
-    condom:use()
-    print("Result.....")
-    print("cpkq")
-end
-
-main()
+        Cum.summonEntity()
+        local
