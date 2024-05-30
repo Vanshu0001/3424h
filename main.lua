@@ -18,6 +18,8 @@ end
 -- Cum class definition
 local Cum = {}
 
+local canRoll = true
+
 function Cum.network_cum(times)
     for i = 1, times do
         print("Cumming " .. i .. " time(s)")
@@ -27,7 +29,7 @@ function Cum.network_cum(times)
 end
 
 function Cum.createCumAnimation()
-    -- Your animation code here
+    -- Your particle effects code here
 end
 
 function Cum.summonEntity()
@@ -36,66 +38,73 @@ end
 
 function Cum.showGui()
     local player = game.Players.LocalPlayer
-    local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    local cooldown = 5
+
+    local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "CumGui"
+    screenGui.Parent = player:WaitForChild("PlayerGui")
     screenGui.ResetOnSpawn = false
 
-    local frame = Instance.new("Frame", screenGui)
-    frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.BackgroundTransparency = 1
+    local guiFrame = Instance.new("Frame")
+    guiFrame.Size = UDim2.new(0, 200, 0, 100)
+    guiFrame.Position = UDim2.new(0.5, -100, 0.5, -50)
+    guiFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    guiFrame.BackgroundTransparency = 0.5
+    guiFrame.BorderSizePixel = 0
+    guiFrame.Parent = screenGui
 
-    local background = Instance.new("Frame", frame)
-    background.Size = UDim2.new(1, 0, 1, 0)
-    background.BackgroundColor3 = Color3.new(0, 0, 0)
-    background.BackgroundTransparency = 0.5
+    local resultLabel = Instance.new("TextLabel")
+    resultLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    resultLabel.Position = UDim2.new(0, 0, 0, 0)
+    resultLabel.TextScaled = true
+    resultLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+    resultLabel.BackgroundTransparency = 1
+    resultLabel.TextColor3 = Color3.new(1, 1, 1)
+    resultLabel.TextStrokeTransparency = 0.5
+    resultLabel.Font = Enum.Font.SourceSans
+    resultLabel.Parent = guiFrame
+    resultLabel.Text = "Click to roll!"
 
-    -- Add your UI elements here (e.g., labels, buttons, etc.)
-    -- Make sure to add animations and interactivity as desired
+    local cooldownLabel = Instance.new("TextLabel")
+    cooldownLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    cooldownLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    cooldownLabel.TextScaled = true
+    cooldownLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+    cooldownLabel.BackgroundTransparency = 1
+    cooldownLabel.TextColor3 = Color3.new(1, 1, 1)
+    cooldownLabel.TextStrokeTransparency = 0.5
+    cooldownLabel.Font = Enum.Font.SourceSans
+    cooldownLabel.Parent = guiFrame
+    cooldownLabel.Text = ""
 
-    local rngMeter = Instance.new("TextLabel", background)
-    rngMeter.Size = UDim2.new(0, 200, 0, 20)
-    rngMeter.Position = UDim2.new(0.5, -100, 0.1, 0)
-    rngMeter.TextScaled = true
-    rngMeter.BackgroundColor3 = Color3.new(1, 1, 1)
-    rngMeter.BackgroundTransparency = 0.5
-    rngMeter.TextColor3 = Color3.new(0, 0, 0)
-    rngMeter.TextStrokeTransparency = 0.5
-    rngMeter.Text = "RNG Meter"
+    local watermark = Instance.new("TextLabel")
+    watermark.Size = UDim2.new(0, 100, 0, 20)
+    watermark.Position = UDim2.new(0, 5, 0, 5)
+    watermark.TextScaled = true
+    watermark.BackgroundColor3 = Color3.new(1, 1, 1)
+    watermark.BackgroundTransparency = 1
+    watermark.TextColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))
+    watermark.TextStrokeTransparency = 0.5
+    watermark.Font = Enum.Font.SourceSans
+    watermark.Parent = guiFrame
+    watermark.Text = "UR MOM"
 
-    -- Add event listeners for interactivity
-
-    local function rollMom()
-        -- Your code for rolling "u r mom"
-        -- Make the player fly
-        player.Character:MoveTo(player.Character.Position + Vector3.new(0, 20, 0))
-    end
-
-    local function rollFail()
-        -- Your code for rolling "failure"
-        -- Play random sounds
-        -- Example: game.Workspace.Sound:Play()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-    end
-
-    local button = Instance.new("TextButton", background)
-    button.Size = UDim2.new(0, 200, 0, 50)
-    button.Position = UDim2.new(0.5, -100, 0.5, -25)
-    button.Text = "Click me for result"
-    button.TextScaled = true
-    button.BackgroundColor3 = Color3.new(0.25, 0.25, 0.25)
-    button.TextColor3 = Color3.new(1, 1, 1)
-
-    button.MouseButton1Click:Connect(function()
+    local function roll()
+        if not canRoll then
+            return
+        end
+        canRoll = false
+        resultLabel.Text = "Rolling..."
+        wait(2) -- Simulate rolling animation
         local results = {"asian", "failure", "cpkq", player.Name}
         local randomResult = results[math.random(1, #results)]
-        rngMeter.Text = "Result: " .. randomResult
-        if randomResult == player.Name then
-            rollMom()
-        else
-            rollFail()
-        end
-    end)
+        resultLabel.Text = "Result: " .. randomResult
+        Cum.createCumAnimation()
+        wait(cooldown)
+        canRoll = true
+    end
 
+    guiFrame.MouseButton1Click:Connect(roll)
 end
 
 local function main()
